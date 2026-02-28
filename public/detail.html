@@ -1,0 +1,273 @@
+<!-- /public/detail.html -->
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Anime - YLnime</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .episode-item:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors">
+    <!-- Navbar -->
+    <nav
+        class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <a href="/" class="text-2xl font-bold text-indigo-500 flex items-center gap-2">
+                    <i class="fas fa-play-circle"></i>
+                    <span>YLnime</span>
+                </a>
+                <div class="flex items-center gap-4">
+                    <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700">
+                        <i class="fas fa-moon text-slate-600 dark:text-slate-300" id="theme-icon"></i>
+                    </button>
+                    <a href="/"
+                        class="px-4 py-2 bg-indigo-500 text-white rounded-full text-sm hover:bg-indigo-600 transition">
+                        <i class="fas fa-home mr-1"></i>Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Back Button -->
+    <div class="container mx-auto px-4 py-4">
+        <button onclick="history.back()"
+            class="flex items-center gap-2 text-indigo-500 hover:text-indigo-600 transition">
+            <i class="fas fa-arrow-left"></i>
+            Kembali
+        </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="text-center py-12 hidden">
+        <div class="loader mx-auto"></div>
+        <p class="mt-4 text-slate-500">Memuat detail anime...</p>
+    </div>
+
+    <!-- Error -->
+    <div id="error" class="hidden container mx-auto px-4">
+        <div
+            class="bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span id="error-message"></span>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mx-auto px-4 py-6">
+        <div id="content" class="hidden">
+            <!-- Header -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg mb-6">
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- Image -->
+                    <div class="md:w-1/4">
+                        <img id="anime-image" src="" alt="" class="w-full rounded-lg shadow-lg">
+                    </div>
+
+                    <!-- Info -->
+                    <div class="md:w-3/4">
+                        <h1 id="anime-title" class="text-2xl md:text-3xl font-bold mb-4"></h1>
+
+                        <div id="genres" class="flex flex-wrap gap-2 mb-4"></div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-slate-100 dark:bg-slate-700 p-3 rounded-lg">
+                                <span class="text-xs text-slate-500 dark:text-slate-400">Status</span>
+                                <p id="anime-status" class="font-semibold"></p>
+                            </div>
+                            <div class="bg-slate-100 dark:bg-slate-700 p-3 rounded-lg">
+                                <span class="text-xs text-slate-500 dark:text-slate-400">Tipe</span>
+                                <p id="anime-type" class="font-semibold"></p>
+                            </div>
+                            <div class="bg-slate-100 dark:bg-slate-700 p-3 rounded-lg">
+                                <span class="text-xs text-slate-500 dark:text-slate-400">Rating</span>
+                                <p id="anime-rating" class="font-semibold"></p>
+                            </div>
+                        </div>
+
+                        <div class="prose dark:prose-invert max-w-none">
+                            <h3 class="text-lg font-semibold mb-2">Sinopsis</h3>
+                            <p id="anime-synopsis" class="text-slate-600 dark:text-slate-400 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Episodes -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg mb-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-list text-indigo-500"></i>
+                    Daftar Episode
+                </h2>
+
+                <div id="episodes" class="space-y-2 max-h-96 overflow-y-auto pr-2">
+                    <!-- Episodes will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-thumbs-up text-indigo-500"></i>
+                    Rekomendasi
+                </h2>
+
+                <div id="recommendations" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Recommendations will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 mt-12 py-6">
+        <div class="container mx-auto px-4 text-center text-slate-500 dark:text-slate-400 text-sm">
+            <p>© 2026 YLnime. All rights reserved. | Fan Project</p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            html.classList.add('dark');
+            themeIcon.className = 'fas fa-sun';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // Get series from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const series = urlParams.get('series');
+
+        if (!series) {
+            window.location.href = '/';
+        }
+
+        // Fetch Detail Data
+        async function fetchDetail() {
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const content = document.getElementById('content');
+
+            loading.classList.remove('hidden');
+            errorDiv.classList.add('hidden');
+            content.classList.add('hidden');
+
+            try {
+                const response = await fetch(`/api/detail?series=${encodeURIComponent(series)}`);
+                const result = await response.json();
+
+                if (!result.success) throw new Error(result.error);
+
+                const data = result.data;
+
+                // Set basic info
+                document.getElementById('anime-title').textContent = data.title;
+                document.getElementById('anime-image').src = data.image || 'https://via.placeholder.com/300x400';
+                document.getElementById('anime-synopsis').textContent = data.synopsis || 'Sinopsis tidak tersedia.';
+                document.getElementById('anime-status').textContent = data.info?.status || '-';
+                document.getElementById('anime-type').textContent = data.info?.type || '-';
+                document.getElementById('anime-rating').textContent = data.info?.rating || '0.0';
+
+                // Set genres
+                const genresDiv = document.getElementById('genres');
+                genresDiv.innerHTML = '';
+                data.genres?.forEach(genre => {
+                    const span = document.createElement('span');
+                    span.className = 'px-3 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 rounded-full text-xs';
+                    span.textContent = genre;
+                    genresDiv.appendChild(span);
+                });
+
+                // Set episodes
+                const episodesDiv = document.getElementById('episodes');
+                episodesDiv.innerHTML = '';
+                data.episodes?.forEach(ep => {
+                    const episodeLink = document.createElement('a');
+                    episodeLink.href = `/watch?series=${series}&episode=${ep.episodeId}`;
+                    episodeLink.className = 'flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700 rounded-lg episode-item transition';
+                    episodeLink.innerHTML = `
+                        <span class="font-medium">Episode ${ep.episode}</span>
+                        <span class="text-sm text-slate-500 dark:text-slate-400">${ep.date || '-'}</span>
+                    `;
+                    episodesDiv.appendChild(episodeLink);
+                });
+
+                // Set recommendations
+                const recDiv = document.getElementById('recommendations');
+                recDiv.innerHTML = '';
+                data.recommendations?.forEach(rec => {
+                    if (!rec.series) return;
+
+                    const card = document.createElement('a');
+                    card.href = `/detail?series=${rec.series}`;
+                    card.className = 'block bg-slate-50 dark:bg-slate-700 rounded-lg overflow-hidden hover:scale-105 transition';
+                    card.innerHTML = `
+                        <img src="${rec.image || 'https://via.placeholder.com/300x200'}" 
+                             alt="${rec.title}" 
+                             class="w-full h-32 object-cover"
+                             onerror="this.src='https://via.placeholder.com/300x200'">
+                        <div class="p-2">
+                            <p class="text-xs font-medium line-clamp-2">${rec.title}</p>
+                        </div>
+                    `;
+                    recDiv.appendChild(card);
+                });
+
+                content.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('error-message').textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', fetchDetail);
+    </script>
+</body>
+
+</html>
